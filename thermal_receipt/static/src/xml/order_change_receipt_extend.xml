@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="OrderChangeReceipt" t-inherit="point_of_sale.OrderChangeReceipt" t-inherit-mode="extension" owl="1">
+
+        <xpath expr="//div[@class='pos-receipt-title']" position="replace">
+            <div><strong>Dine in</strong></div>
+            <div class="order-number mb-2">
+                <strong>Order Number: <t t-esc="changes.order_number"/></strong>
+            </div>
+        </xpath>
+
+        <xpath expr="//span[@class='my-4']" position="replace">
+            <div class="category-header fw-bold text-uppercase border-bottom pb-2" style="font-size: 36px; font-weight: 800;">
+                <t t-if="changes.table_name">
+                    Table <strong><t t-esc="changes.table_name"/></strong>
+                </t>
+                <t t-if="changes.tracking_number" class="fw-semibold my-3">
+                    # <strong><t t-esc="changes.tracking_number"/></strong>
+                </t>
+            </div>
+        </xpath>
+
+        <xpath expr="//div[@class='pos-receipt-body pb-5']" position="replace">
+            <div class="products-by-category mt-4">
+                <t t-foreach="Object.keys(changes.categories_with_products)" t-as="category" t-key="category">
+                    <div class="category-section mb-4">
+                        <!-- ✅ BIGGER category header -->
+                        <div class="fw-bold text-uppercase border-bottom border-dark border-2 pb-2 mb-3"
+                             style="font-size: 42px; font-weight: 900; letter-spacing: 2px;">
+                            <t t-esc="category"/>
+                        </div>
+
+                        <!-- ✅ BIGGER products list -->
+                        <div class="products-list ps-2">
+                            <t t-foreach="changes.categories_with_products[category]" t-as="product" t-key="product_index">
+                                <div class="product-line mb-2" style="font-size: 32px; font-weight: 600;">
+                                    <t t-if="product.qty > 1">
+                                        <span class="fw-bold" t-esc="product.qty"/> x
+                                    </t>
+                                    <span t-esc="product.name"/>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+                </t>
+            </div>
+        </xpath>
+
+    </t>
+</templates>

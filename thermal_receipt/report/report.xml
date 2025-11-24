@@ -1,0 +1,10 @@
+<odoo>
+  <record id="thermal_invoice_web_print" model="ir.actions.report">
+    <field name="name">Thermal Web Print</field>
+    <field name="model">account.move</field>
+    <field name="report_type">qweb-html</field>
+    <field name="binding_model_id" ref="account.model_account_move"/>
+    <field name="report_name">thermal_receipt.report_invoice_thermal_html</field>
+    <field name="print_report_name">'Thermal Invoice - %s' % (object.name)</field>
+  </record>
+</odoo>

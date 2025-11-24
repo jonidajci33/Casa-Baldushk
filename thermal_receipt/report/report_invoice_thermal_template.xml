@@ -1,0 +1,26 @@
+<odoo>
+    <template id="report_invoice_thermal">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <div style="width: 58mm; font-size: 10px; font-family: monospace;">
+                    <h3>Invoice: <t t-esc="o.name"/></h3>
+                    <p>Date: <t t-esc="o.invoice_date"/></p>
+                    <p>Customer: <t t-esc="o.partner_id.name"/></p>
+                    <hr/>
+                    <table>
+                        <t t-foreach="o.invoice_line_ids" t-as="line">
+                            <tr>
+                                <td><t t-esc="line.name"/></td>
+                                <td><t t-esc="line.quantity"/> x <t t-esc="line.price_unit"/></td>
+                                <td><t t-esc="line.price_total"/></td>
+                            </tr>
+                        </t>
+                    </table>
+                    <hr/>
+                    <p><strong>Total: <t t-esc="o.amount_total"/></strong></p>
+                    <p>Thank you!</p>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

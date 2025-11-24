@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+        <t t-name="profisc.PartnerDetailsEdit" t-inherit="point_of_sale.PartnerDetailsEdit"
+           t-inherit-mode="extension" owl="1">
+            <xpath expr="//select[@name='country_id']" position="after">
+                    <div class="partner-detail">
+                        <span class="label">ID Type</span>
+                        <select class="detail" name="profisc_customer_vat_type"
+                                t-model="changes.profisc_customer_vat_type"
+                                t-on-change="captureChange">
+                             <t t-foreach="env.pos.id_types" t-as="id_type" t-key="id_type.value">
+                                <option t-att-value="id_type.value">
+                                    <t t-esc="id_type.label"/>
+                                </option>
+                            </t>
+                        </select>
+                    </div>
+                </xpath>
+        </t>
+    </templates>
+
