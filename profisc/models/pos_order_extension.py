@@ -266,6 +266,7 @@ class PosOrder(models.Model):
                 ref_order = None
 
         current_time = datetime.now().strftime("%H:%M:%S")
+        company = self.env.company
 
         invoice_json = {
             "invoiceId": record.access_token,
@@ -276,7 +277,7 @@ class PosOrder(models.Model):
             'currency': "ALL",
             'exchangeRate': 1,
             'sendEInv': int(record.profisc_fisc_type) == 2,
-            'taxScheme': "fre",
+            'taxScheme': company.tax_type,
             'profileId': 'P1' if not ref_order else 'P10',
             'noteToCustomer': "",
             'customer': {

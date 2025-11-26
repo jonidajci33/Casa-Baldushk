@@ -29,7 +29,18 @@ class ResCompanyExtension(models.Model):
 
     profisc_purch_inv_check_time_s = fields.Integer(string='Check for new Invoices time(s)', default=3600)
     # profisc_rate_indicator = fields.Char("Manual Currency Rate", default="1")
+    is_in_vat = fields.Boolean(string="Is in Vat", default=True)
+    tax_type = fields.Char(
+        string="Tax Type",
+        compute="_compute_tax_type",
+        store=True
+    )
 
     def get_current_company(self):
         res = self.env['profisc.actions'].getTaxPayer(self.vat)
         raise UserError(f"Current Company::{res['content'][0]}")
+
+    @api.depends('is_in_vat')
+    def _compute_tax_type(self):
+        for company in self:
+            company.tax_type = "Normal" if company.is_in_vat else "Fre"

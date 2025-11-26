@@ -28,6 +28,7 @@
                                 <field name="profisc_auto_subseq" string="Profisc auto subseq"/>
                                 <field name="profisc_manual_fisc_select" string="Manual fisc select"/>
                                 <field name="profisc_auto_search_nuis" string="Auto Search NUIS" />
+                                <field name="is_in_vat"/>
 <!--                                <field name="profisc_invoiceStatus" string="Status Change Api"/>-->
 <!--                                <field name="profisc_checkStatus" string="Status Check Api"/>-->
                             </group>
