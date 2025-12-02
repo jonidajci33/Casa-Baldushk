@@ -21,6 +21,7 @@ patch(ActionpadWidget.prototype, {
                 console.log("Sending order to Kitchen Display only...");
 
                 order.is_draft = true;
+                order.sent_fiscal = false; // Don't fiscalize kitchen orders
                 await this.pos.sendOrderInPreparationUpdateLastChange(order);
 
                 const orderLines = order.get_orderlines?.() || [];
@@ -52,7 +53,8 @@ patch(ActionpadWidget.prototype, {
                 this.bus_service.send("pos_preparation_display.order", orderData);
 
                 console.log("Order sent to Kitchen Display successfully (skipping fiscalization)");
-                order.is_draft = false;
+                // Keep is_draft = true to prevent fiscalization during auto-sync
+                // Only the Validate button should set is_draft = false
             } catch (error) {
                 console.error("Failed to send order to Kitchen Display:", error);
             }

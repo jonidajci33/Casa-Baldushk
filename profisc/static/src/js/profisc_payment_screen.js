@@ -41,15 +41,23 @@ import {patch} from "@web/core/utils/patch";
             await this.draftOrder()},
 
         async draftOrder() {
-            await this.validateOrder(false, { is_draft: true });
+            await this.validateOrder(false, { is_draft: true, sent_fiscal: false });
         },
 
         async validateOrder(isForceValidate, options = {}) {
             // Custom validation logic.
-            const isDraft = options.is_draft || false;
-            console.log("Entered IsDraft", isDraft)
             const order = this.pos.get_order();
-            order.is_draft=isDraft
+
+            // Handle is_draft (for backwards compatibility)
+            const isDraft = options.is_draft !== undefined ? options.is_draft : false;
+            order.is_draft = isDraft;
+
+            // New flag: sent_fiscal - only true when Validate button is pressed (not Draft)
+            const sentFiscal = options.sent_fiscal !== undefined ? options.sent_fiscal : !isDraft;
+            order.sent_fiscal = sentFiscal;
+
+            console.log("Order validation - is_draft:", order.is_draft, "sent_fiscal:", order.sent_fiscal);
+
             if (this._custom_validation_method(order)) {
                 return super.validateOrder(...arguments);
             } else {

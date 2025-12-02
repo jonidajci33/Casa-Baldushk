@@ -71,7 +71,8 @@ class PosOrder(models.Model):
     profisc_ubl_id = fields.Char(string='UBL ID')
     profisc_status_control = fields.Selection([('0', 'In Process'), ('2', 'Error'), ('3', 'Success'), ], store=True,
                                               string='Status Control')
-    is_draft = fields.Boolean(string="Is Draft", default=False)
+    is_draft = fields.Boolean(string="Is Draft", default=True)
+    sent_fiscal = fields.Boolean(string="Send to Fiscalization", default=False)
 
     @api.model
     def get_reference_order(self, ordername):
@@ -130,6 +131,29 @@ class PosOrder(models.Model):
             'target': 'new',
         }
 
+    def action_finalize_order(self):
+        """Manual action to finalize and fiscalize the order"""
+        for order in self:
+            if order.profisc_status_control == '3':
+                raise UserError("This order has already been fiscalized successfully.")
+
+            _logger.info("Manually finalizing order ID: %s", order.id)
+            # Set is_draft to False
+            order.write({'is_draft': False})
+            # Call fiscalization
+            self.fiscalize_order(order.id, 'n_a')
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': 'Order Finalized',
+                'message': 'The order has been fiscalized successfully.',
+                'type': 'success',
+                'sticky': False,
+            }
+        }
+
     @api.model
     def get_invoice(self, order_ref):
         invoice = self.env['pos.order'].search(
@@ -148,9 +172,13 @@ class PosOrder(models.Model):
     def _order_fields(self, ui_order):
         fields = super(PosOrder, self)._order_fields(ui_order)
 
-        # Include your custom field
+        # Include your custom fields
         fields["profisc_fisc_type"] = ui_order.get("profisc_fisc_type", False)
-        fields["is_draft"] = ui_order.get("is_draft", False)
+        # Default to True (draft) to prevent automatic fiscalization
+        # Only Validate button should explicitly set this to False
+        fields["is_draft"] = ui_order.get("is_draft", True)
+        # New flag: only fiscalize when explicitly set to True by Validate button
+        fields["sent_fiscal"] = ui_order.get("sent_fiscal", False)
 
         return fields
 
@@ -160,13 +188,17 @@ class PosOrder(models.Model):
     def _process_order(self, order, existing_order):
         order_id = super(PosOrder, self)._process_order(order, existing_order)
 
-        _logger.info(" order.get('is_draft') " + str(order.get('is_draft', False)))
-        # Only fiscalize if not a draft
-        if not order.get('is_draft'):
-            # Call fiscalize_order synchronously
+        sent_fiscal = order.get('sent_fiscal', False)
+        _logger.info("Processing order ID: %s, sent_fiscal: %s", order_id, sent_fiscal)
+
+        # Only fiscalize when sent_fiscal flag is explicitly True (set by Validate button)
+        # All other cases: auto-sync, kitchen orders, draft button -> sent_fiscal=False -> skip fiscalization
+        if sent_fiscal:
+            _logger.info("Fiscalizing order (Validate button pressed). Order ID: %s", order_id)
             result = self.fiscalize_order(order_id, 'n_a')
             return result or order_id
         else:
+            _logger.info("Skipping fiscalization (sent_fiscal=False). Order ID: %s", order_id)
             return order_id
 
     @api.model
@@ -276,7 +308,7 @@ class PosOrder(models.Model):
             'currency': "ALL",
             'exchangeRate': 1,
             'sendEInv': int(record.profisc_fisc_type) == 2,
-            'taxScheme': "fre",
+            'taxScheme': "normal",
             'profileId': 'P1' if not ref_order else 'P10',
             'noteToCustomer': "",
             'customer': {
@@ -369,7 +401,7 @@ class PosOrder(models.Model):
                 'price': item_price,
                 "discount": line.discount,  #
                 "vat": tax.amount,
-                "vatScheme": "fre",
+                "vatScheme": "normal",
                 "totalLineNeto": coef * total_line_neto,
                 "totalLineVat": coef * total_line_vat
             }
