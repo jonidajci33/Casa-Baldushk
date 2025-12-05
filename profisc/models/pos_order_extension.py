@@ -308,7 +308,7 @@ class PosOrder(models.Model):
             'currency': "ALL",
             'exchangeRate': 1,
             'sendEInv': int(record.profisc_fisc_type) == 2,
-            'taxScheme': "normal",
+            'taxScheme': "fre",
             'profileId': 'P1' if not ref_order else 'P10',
             'noteToCustomer': "",
             'customer': {
@@ -401,7 +401,7 @@ class PosOrder(models.Model):
                 'price': item_price,
                 "discount": line.discount,  #
                 "vat": tax.amount,
-                "vatScheme": "normal",
+                "vatScheme": "fre",
                 "totalLineNeto": coef * total_line_neto,
                 "totalLineVat": coef * total_line_vat
             }
