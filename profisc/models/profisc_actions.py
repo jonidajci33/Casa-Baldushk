@@ -225,7 +225,7 @@ class profisc_actions(models.Model):
                 'price': item_price,
                 "discount":  item_price * line.quantity * (line.discount / 100.0) * coef,
                 "vat": tax.amount,
-                "vatScheme": "fre",
+                "vatScheme": tax.description,
                 "totalLineNeto": coef * total_line_neto,
                 "totalLineVat": coef * total_line_vat
             }

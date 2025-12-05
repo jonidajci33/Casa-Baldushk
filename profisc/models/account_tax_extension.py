@@ -15,6 +15,10 @@ class AccountTaxExtension(models.Model):
 
     profisc_vat_exempt = fields.Char(string='VAT Exempt')
 
+    profisc_vat_schema = fields.Selection([
+        ('normal', 'Normal - S'), ('excluded', 'Excluded - E'), ('fre', 'Fre O'), ('withoutvat', 'Without Vat - Z')
+    ])
+
     included_on_books = fields.Boolean(string='Included On Books', default=False, store=True)
 
     sale_book_label = fields.Selection(

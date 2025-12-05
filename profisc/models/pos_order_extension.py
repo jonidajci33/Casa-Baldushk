@@ -370,7 +370,7 @@ class PosOrder(models.Model):
                 'price': item_price,
                 "discount": line.discount,  #
                 "vat": tax.amount,
-                "vatScheme": "fre",
+                "vatScheme": tax.description,
                 "totalLineNeto": coef * total_line_neto,
                 "totalLineVat": coef * total_line_vat
             }
