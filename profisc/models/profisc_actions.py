@@ -305,7 +305,6 @@ class profisc_actions(models.Model):
         response = requests.post(f"{company.profisc_api_endpoint}{company.profisc_search_endpoint}",
                                  data=json.dumps(payload),
                                  headers=self.env['profisc.auth'].generateHeaders())
-        res = response.json()
         if response.status_code in (401, 403):
             self.env['profisc.auth'].profisc_login()
             if invoice_type == 'e_invoice_pdf':
@@ -313,6 +312,7 @@ class profisc_actions(models.Model):
             else:
                 self.getFiscPdf(account_move_id)
         elif response.status_code == 200:
+            res = response.json()
             if res['status'] and res['error'] is None and len(res['content']) > 0:
                 content = res['content'][0]
                 if invoice_type == 'e_invoice_pdf':
