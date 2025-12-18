@@ -273,7 +273,7 @@ class profisc_actions(models.Model):
             "company": company.profisc_company_id
         }
         # raise UserError(f"payload::{payload}")
-        return self.getFile(record, payload, "fisc_invoice_pdf")
+        return self.getFile(record, payload, "fisc_invoice_pdf", account_move_id)
 
     def getEinvoicePdf(self, account_move_id):
         company = self.env['profisc.auth'].get_current_company()
@@ -297,10 +297,10 @@ class profisc_actions(models.Model):
             "username": self.env.user.name,
             "company": company.profisc_company_id
         }
-        self.getFile(record, payload, "e_invoice_pdf")
+        self.getFile(record, payload, "e_invoice_pdf", account_move_id)
         # raise UserError(json.dumps(payload))
 
-    def getFile(self, record, payload, invoice_type):
+    def getFile(self, record, payload, invoice_type, account_move_id):
         company = self.env['profisc.auth'].get_current_company()
         response = requests.post(f"{company.profisc_api_endpoint}{company.profisc_search_endpoint}",
                                  data=json.dumps(payload),
@@ -309,9 +309,9 @@ class profisc_actions(models.Model):
         if response.status_code in (401, 403):
             self.env['profisc.auth'].profisc_login()
             if invoice_type == 'e_invoice_pdf':
-                self.getEinvoicePdf()
+                self.getEinvoicePdf(account_move_id)
             else:
-                self.getFiscPdf()
+                self.getFiscPdf(account_move_id)
         elif response.status_code == 200:
             if res['status'] and res['error'] is None and len(res['content']) > 0:
                 content = res['content'][0]
